@@ -1,5 +1,6 @@
 import argparse
 from animacy import get_animate_samples
+from src.utils.data import get_sentence_text
 from model import Model
 from sigmorphon_reinflection.decode import get_decoding_model
 from sigmorphon_reinflection.reinflection_model import *
@@ -69,11 +70,17 @@ def main():
                 print("    Converting sentences...")
                 for sc in tqdm(samples, total=len(samples)):
                     try:
+                        print("Start sample", get_sentence_text(sc.sentence))
                         converted = sc.apply(model, psi, reinflection_model, device, decode_fn, decode_trg)
+                        print("Converted", converted)
                         converted_sentences.append(converted)
                     except ValueError:
+                        print("Value error")
+                        assert False, "I don't want Value errors"
                         continue
                     except IndexError:
+                        print("Index error")
+                        assert False, "I don't want Index errors"
                         continue
                 del samples
                 out.write("\n\n".join(converted_sentences) + "\n\n")

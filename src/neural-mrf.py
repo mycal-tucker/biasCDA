@@ -57,7 +57,7 @@ class NeuralMRF(nn.Module):
 
     def fit(self, epochs=100, precision=1e-5):
         self.optimizer = optim.Adam(self.parameters(), lr=0.001, weight_decay=0.001)
-
+        prev_loss = 100
         def step():
             """ step in the optimization """
             train_loss = dev_loss = 0
@@ -77,10 +77,14 @@ class NeuralMRF(nn.Module):
             print("Computing epoch", i + 1, "...")
             # Do optimization step
             train_loss, dev_loss = step()
+            tl_val = train_loss.item()
+            dl_val = dev_loss.item()
+            print("Train loss", train_loss)
+            print("Dev loss", dev_loss)
             # Save current parameters
             file = os.path.join(self.out_dir, "psi_" +
-                                str(round(train_loss[0].item(), 6)) + "_" +
-                                str(round(dev_loss[0].item(), 6)) + "_epoch" + str(i + 1) + ".pt")
+                                str(round(tl_val, 6)) + "_" +
+                                str(round(dl_val, 6)) + "_epoch" + str(i + 1) + ".pt")
             if self.linear:
                 torch.save(self.psi, file)
             else:
@@ -95,11 +99,11 @@ class NeuralMRF(nn.Module):
                 del pos2, pos1, labels, psi_1, psi
 
             print("Completed epoch", i + 1)
-            print("    Training loss:", train_loss[0].item())
-            print("    Dev loss:     ", dev_loss[0].item())
-            if i > 0 and prev_loss - train_loss < precision:
+            print("    Training loss:", tl_val)
+            print("    Dev loss:     ", dl_val)
+            if i > 0 and prev_loss - tl_val < precision:
                 break
-            prev_loss = train_loss
+            prev_loss = tl_val
 
 
 if __name__ == "__main__":

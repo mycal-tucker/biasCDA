@@ -278,7 +278,7 @@ class Trainer(object):
                 out_fp.write("".join(pred) + '\n')
                 trg_fp.write("".join(trg) + '\n')
                 cnt += 1
-        self.logger.info('finished decoding ' + cnt + ' ' + mode + ' instance')
+        self.logger.info('finished decoding ' + str(cnt) + ' ' + mode + ' instance')
 
     def update_lr_and_stop_early(self, epoch_idx, devloss, estop):
         prev_lr = self.optimizer.param_groups[0]['lr']

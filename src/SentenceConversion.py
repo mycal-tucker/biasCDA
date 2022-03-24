@@ -5,7 +5,7 @@ from sigmorphon_reinflection.decode import decode_word
 
 class SentenceConversion:
     """
-    Class to convert he gender of a word in a sentence
+    Class to convert the gender of a word in a sentence
     """
     def __init__(self, sentence, changes, use_v1, hack_v2):
         self.sentence = sentence
