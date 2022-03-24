@@ -49,6 +49,15 @@ def inference(sentences):
             ids = ids.cuda()
         # Get model output.
         output, _ = language_model(ids)
+        # Measure perplexity:.
+        surprisals = []
+        for logits, true_id in zip(output, ids):
+            id_val = true_id.item()
+            if id_val == dataset.token_vocab.word2id(dataset.token_vocab.unk_token):
+                print("Unknown")
+            surprisals.append(logits.detach().cpu().numpy()[0, id_val])
+        print("Perplexity", np.sum(surprisals))
+        print("Surprisals", surprisals)
         _, preds = torch.max(output, dim=2)
         if torch.cuda.is_available():
             preds = preds.cpu()
@@ -63,8 +72,29 @@ if __name__ == '__main__':
     vocab_path = 'data/vocab.pk'
     model_path = 'data/language_model_standard.pt'
     # model_path = 'data/language_model_reinflected.pt'
-    # dataset_path = 'data/fr-test.conllu'
-    dataset_path = 'data/french_reinflected_test.conllu'
-    inference([["L'", "homme", "travaille", "à", "l'", "hôpital", "comme"],
-              ["La", "femme", "travaille", "à", "l'", "hôpital", "comme"]])
+    dataset_path = 'data/fr-test.conllu'
+    # dataset_path = 'data/french_reinflected_test.conllu'
+    # inference([["L'", "homme", "travaille", "à", "l'", "hôpital", "comme", "chirugien"],
+    #            ["L'", "homme", "travaille", "à", "l'", "hôpital", "comme", "infermier"],
+    #           ["La", "femme", "travaille", "à", "l'", "hôpital", "comme", "chirugienne"],
+    #           ["La", "femme", "travaille", "à", "l'", "hôpital", "comme", "infirmière"]])
+    # Simple gendered adjective
+    inference([["L'", "homme", "est", "beau"],
+              ["L'", "homme", "est", "belle"],
+              ["L'", "homme", "est", "intelligent"],
+              ["L'", "homme", "est", "intelligente"],
+              ["La", "femme", "est", "beau"],
+              ["La", "femme", "est", "belle"],
+              ["La", "femme", "est", "intelligent"],
+              ["La", "femme", "est", "intelligente"]])
+    # Non-gendered adjective
+    inference([["L'", "homme", "a", "raison"],
+              ["L'", "homme", "a", "tort"],
+              ["La", "femme", "a", "raison"],
+              ["La", "femme", "a", "tort"]])
+    # Simple non-gendered noun
+    inference([["L'", "homme", "est", "médecin"],
+              ["L'", "homme", "est", "secrétaire"],
+              ["La", "femme", "est", "médecin"],
+              ["La", "femme", "est", "secrétaire"]])
     do_eval()

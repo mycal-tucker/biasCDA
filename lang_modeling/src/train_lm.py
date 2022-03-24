@@ -18,6 +18,8 @@ def main(_):
 
     # Initialize CoNLL dataset.
     dataset = CoNLLDataset(fname=config['data']['train'], target='lm', token_vocab=config['data'].get('vocab'))
+    # And save the vocab dataset
+    dataset.token_vocab.save('data/vocab.pk')
 
     # Initialize model.
     language_model = LanguageModel(
@@ -67,8 +69,6 @@ def main(_):
                 torch.save(language_model, config['data']['checkpoint'])
             i += 1
     torch.save(language_model, config['data']['checkpoint'])
-    # And save the vocab dataset
-    dataset.token_vocab.save('data/vocab.pk')
 
 
 if __name__ == '__main__':
