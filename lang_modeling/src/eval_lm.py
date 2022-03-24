@@ -6,12 +6,9 @@ from lang_modeling.src.conll_dataset import CoNLLDataset, collate_annotations
 import numpy as np
 
 def do_eval():
-    print("hello world")
-    language_model = torch.load('data/language_model.pt')
-    print("Loaded model", language_model)
-
+    language_model = torch.load(model_path)
     # Load eval dataset
-    dataset = CoNLLDataset(fname='data/french-test.conllu', target='lm')
+    dataset = CoNLLDataset(fname=dataset_path, target='lm', token_vocab=vocab_path)
 
     if torch.cuda.is_available():
         language_model = language_model.cuda()
@@ -42,8 +39,8 @@ def do_eval():
 
 
 def inference(sentences):
-    language_model = torch.load('data/language_model.pt')
-    dataset = CoNLLDataset(fname='data/french-test.conllu', target='lm')
+    language_model = torch.load(model_path)
+    dataset = CoNLLDataset(fname=dataset_path, target='lm', token_vocab=vocab_path)
     for sentence in sentences:
         # Convert words to id tensor.
         ids = [[dataset.token_vocab.word2id(x)] for x in sentence]
@@ -63,6 +60,11 @@ def inference(sentences):
 
 
 if __name__ == '__main__':
+    vocab_path = 'data/vocab.pk'
+    model_path = 'data/language_model_standard.pt'
+    # model_path = 'data/language_model_reinflected.pt'
+    # dataset_path = 'data/fr-test.conllu'
+    dataset_path = 'data/french_reinflected_test.conllu'
     inference([["L'", "homme", "travaille", "à", "l'", "hôpital", "comme"],
               ["La", "femme", "travaille", "à", "l'", "hôpital", "comme"]])
     do_eval()

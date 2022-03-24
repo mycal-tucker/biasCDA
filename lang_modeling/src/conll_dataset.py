@@ -3,6 +3,7 @@ import torch
 from collections import Counter
 from torch.utils.data import Dataset
 from torch.autograd import Variable
+import pickle
 
 
 def pad(sequences, max_length, pad_value=0):
@@ -117,6 +118,15 @@ class Vocab(object):
         """
         return self._id2word[id]
 
+    def save(self, path):
+        with open(path, 'wb') as f:
+            pickle.dump(self, f)
+
+    @staticmethod
+    def load(path):
+        with open(path, 'rb') as f:
+            return pickle.load(f)
+
 
 class Annotation(object):
     def __init__(self):
@@ -125,7 +135,7 @@ class Annotation(object):
 
 
 class CoNLLDataset(Dataset):
-    def __init__(self, fname, target):
+    def __init__(self, fname, target, token_vocab=None):
         """Initializes the CoNLLDataset.
         Args:
             fname: The .conllu file to load data from.
@@ -135,10 +145,13 @@ class CoNLLDataset(Dataset):
         self.target = target
         self.fname = fname
         self.annotations = self.process_conll_file(fname)
-        self.token_vocab = Vocab([x.tokens for x in self.annotations],
-                                  sos_token='<s>',
-                                  eos_token='</s>',
-                                  unk_token='<unk>')
+        if token_vocab is None:
+            self.token_vocab = Vocab([x.tokens for x in self.annotations],
+                                      sos_token='<s>',
+                                      eos_token='</s>',
+                                      unk_token='<unk>')
+        else:
+            self.token_vocab = Vocab.load(token_vocab)
         self.pos_vocab = Vocab([x.pos_tags for x in self.annotations])
 
     def __len__(self):
@@ -172,7 +185,7 @@ class CoNLLDataset(Dataset):
                 # If line is empty ignore it.
                 if len(line)==0:
                     continue
-                # If line is a commend ignore it.
+                # If line is a comment ignore it.
                 if line[0] == '#':
                     continue
                 # Otherwise split on tabs and retrieve the token and the

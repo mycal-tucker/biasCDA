@@ -6,7 +6,7 @@ import yaml
 from torch.utils.data import DataLoader
 
 from lang_modeling.src.conll_dataset import CoNLLDataset, collate_annotations
-from lang_modeling.src.lstm_lm import LanguageModel
+from lang_modeling.src.language_model import LanguageModel
 
 FLAGS = None
 
@@ -17,7 +17,7 @@ def main(_):
         config = yaml.safe_load(f)
 
     # Initialize CoNLL dataset.
-    dataset = CoNLLDataset(fname=config['data']['train'], target='lm')
+    dataset = CoNLLDataset(fname=config['data']['train'], target='lm', token_vocab=config['data'].get('vocab'))
 
     # Initialize model.
     language_model = LanguageModel(
@@ -45,6 +45,7 @@ def main(_):
     losses = []
     i = 0
     for epoch in range(config['training']['num_epochs']):
+        print("Epoch", epoch)
         for batch in data_loader:
             inputs, targets, lengths = batch
             optimizer.zero_grad()
@@ -66,6 +67,8 @@ def main(_):
                 torch.save(language_model, config['data']['checkpoint'])
             i += 1
     torch.save(language_model, config['data']['checkpoint'])
+    # And save the vocab dataset
+    dataset.token_vocab.save('data/vocab.pk')
 
 
 if __name__ == '__main__':

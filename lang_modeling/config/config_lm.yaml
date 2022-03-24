@@ -1,6 +1,9 @@
 data:
-    train: './data/french-train.conllu'
-    checkpoint: './data/language_model.pt'
+#    train: './data/french_reinflected_train.conllu'
+#    checkpoint: './data/language_model_reinflected.pt'
+#    vocab: './data/vocab.pk'
+    train: './data/fr-train.conllu'
+    checkpoint: './data/language_model_standard.pt'
 
 model:
     embedding_dim: 200
