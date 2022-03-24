@@ -44,6 +44,12 @@ def main(_):
         batch_size=config['training']['batch_size'],
         shuffle=True,
         collate_fn=collate_annotations)
+    dev_data = DataLoader(
+        CoNLLDataset(fname=config['data']['dev'], target='lm', token_vocab=config['data'].get('vocab')),
+        batch_size=config['training']['batch_size'],
+        shuffle=False,
+        collate_fn=collate_annotations)
+    best_dev_loss = 100
     losses = []
     i = 0
     for epoch in range(config['training']['num_epochs']):
@@ -68,6 +74,25 @@ def main(_):
             if (i % 1000) == 0:
                 torch.save(language_model, config['data']['checkpoint'])
             i += 1
+        # Run eval after every!? epoch
+        with torch.no_grad():
+            dev_losses = []
+            for batch in dev_data:
+                inputs, targets, lengths = batch
+                optimizer.zero_grad()
+                outputs, _ = language_model(inputs, lengths=lengths)
+
+                outputs = outputs.view(-1, len(dataset.token_vocab))
+                targets = targets.view(-1)
+                loss = loss_function(outputs, targets)
+                dev_losses.append(loss.item())
+            dev_loss = np.mean(dev_losses)
+            print("Dev loss", dev_loss)
+            # Early stopping?
+            # if dev_loss > best_dev_loss:
+            #     break
+            if dev_loss < best_dev_loss:
+                best_dev_loss = dev_loss
     torch.save(language_model, config['data']['checkpoint'])
 
 

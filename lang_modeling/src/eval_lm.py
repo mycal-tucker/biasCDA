@@ -7,6 +7,7 @@ import numpy as np
 
 def do_eval():
     language_model = torch.load(model_path)
+    language_model.eval()
     # Load eval dataset
     dataset = CoNLLDataset(fname=dataset_path, target='lm', token_vocab=vocab_path)
 
@@ -70,31 +71,33 @@ def inference(sentences):
 
 if __name__ == '__main__':
     vocab_path = 'data/vocab.pk'
-    model_path = 'data/language_model_standard.pt'
-    # model_path = 'data/language_model_reinflected.pt'
-    dataset_path = 'data/fr-test.conllu'
+    model_path = 'data/language_model_eng.pt'
+    dataset_path = 'data/english-test.conllu'
     # dataset_path = 'data/french_reinflected_test.conllu'
     # inference([["L'", "homme", "travaille", "à", "l'", "hôpital", "comme", "chirugien"],
     #            ["L'", "homme", "travaille", "à", "l'", "hôpital", "comme", "infermier"],
     #           ["La", "femme", "travaille", "à", "l'", "hôpital", "comme", "chirugienne"],
     #           ["La", "femme", "travaille", "à", "l'", "hôpital", "comme", "infirmière"]])
     # Simple gendered adjective
-    inference([["L'", "homme", "est", "beau"],
-              ["L'", "homme", "est", "belle"],
-              ["L'", "homme", "est", "intelligent"],
-              ["L'", "homme", "est", "intelligente"],
-              ["La", "femme", "est", "beau"],
-              ["La", "femme", "est", "belle"],
-              ["La", "femme", "est", "intelligent"],
-              ["La", "femme", "est", "intelligente"]])
-    # Non-gendered adjective
-    inference([["L'", "homme", "a", "raison"],
-              ["L'", "homme", "a", "tort"],
-              ["La", "femme", "a", "raison"],
-              ["La", "femme", "a", "tort"]])
-    # Simple non-gendered noun
-    inference([["L'", "homme", "est", "médecin"],
-              ["L'", "homme", "est", "secrétaire"],
-              ["La", "femme", "est", "médecin"],
-              ["La", "femme", "est", "secrétaire"]])
+    # inference([["L'", "homme", "est", "beau"],
+    #           ["L'", "homme", "est", "belle"],
+    #           ["L'", "homme", "est", "intelligent"],
+    #           ["L'", "homme", "est", "intelligente"],
+    #           ["La", "femme", "est", "beau"],
+    #           ["La", "femme", "est", "belle"],
+    #           ["La", "femme", "est", "intelligent"],
+    #           ["La", "femme", "est", "intelligente"]])
+    # # Non-gendered adjective
+    # inference([["L'", "homme", "a", "raison"],
+    #           ["L'", "homme", "a", "tort"],
+    #           ["La", "femme", "a", "raison"],
+    #           ["La", "femme", "a", "tort"]])
+    # # Simple non-gendered noun
+    # inference([["L'", "homme", "est", "médecin"],
+    #           ["L'", "homme", "est", "secrétaire"],
+    #           ["La", "femme", "est", "médecin"],
+    #           ["La", "femme", "est", "secrétaire"]])
+    data = [["He", "is", "a", "doctor"],
+            ["She", "is", "a", "doctor"]]
+    inference(data)
     do_eval()
